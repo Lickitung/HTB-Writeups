@@ -237,45 +237,28 @@ Now it is time to transfer linPEAS over to the box for some more enumeration.
 
 ![ef626295d38d140c8b6ddc33532328ce.png](../_resources/ef626295d38d140c8b6ddc33532328ce.png)
 
-..
-
 ![3f4af5d2676279e548727af1b54f1dd0.png](../_resources/3f4af5d2676279e548727af1b54f1dd0.png)
 
 There are a number of things that stick out to me from the linpeas results (in no particular order).
 
-1.) There might be an old backup file of some sort.
-![f8275853fc6b11fb64433563fe467e6b.png](../_resources/f8275853fc6b11fb64433563fe467e6b.png)
-
-2.) Possibly some SGID's and SUID's worth looking into.
-![228933f8b286dfd31ec2138d44f3d4e2.png](../_resources/228933f8b286dfd31ec2138d44f3d4e2.png)
-![02c8f210f84f0e7d40fff8284baf6839.png](../_resources/02c8f210f84f0e7d40fff8284baf6839.png)
-
-3.) A tmux session in `/tmp`
-![3f2b720a73767cb6e13813f9c36e8946.png](../_resources/3f2b720a73767cb6e13813f9c36e8946.png)
-
-4.) There is an `atanas` user
+1.) There is an `atanas` user
 ![7f223ffeacd153f71f5d9a8c2ef6f171.png](../_resources/7f223ffeacd153f71f5d9a8c2ef6f171.png)
 
-5.) Some MySQL stuff, possibly including a config file?
+2.) Some MySQL stuff, possibly including a config file?
 ![16e345e9d8ea00dd1d0675d498991609.png](../_resources/16e345e9d8ea00dd1d0675d498991609.png)
 ![b13855711f381d74ad4d1db754d95113.png](../_resources/b13855711f381d74ad4d1db754d95113.png)
 
-6.) It might be worth revisiting these ports open on localhost
+3.) It might be worth revisiting these ports open on localhost
 ![904b001b74099d0f00ca17eebd84e4bf.png](../_resources/904b001b74099d0f00ca17eebd84e4bf.png)
 
-7.) I am not 100% sure what mdadm is
-![043dd83b33220d6872310c10131d983d.png](../_resources/043dd83b33220d6872310c10131d983d.png)
-
-8.) Lastly, our sudo version is outdated
+4.) Lastly, our sudo version is outdated
 ![35e66d24f375e3a855b6bceb24b8f229.png](../_resources/35e66d24f375e3a855b6bceb24b8f229.png)
-![3f9a6112b92fb0bb05031cbd63152bd6.png](../_resources/3f9a6112b92fb0bb05031cbd63152bd6.png)
-![d48da147566910c9a7e6ae345a006245.png](../_resources/d48da147566910c9a7e6ae345a006245.png)
 
-Organize these notes later:
- - Cron possibly creating something in /tmp <- mdadm?
- -  Tmux session
- -  Old sudo version
- -  MySQL (and others on localhost?)
- -  Maybe SGID on /usr/bin/screen
- -  backup file? /usr/share/info/dir.old 
+Unfortunately there doesn't seem to be any sudo exploits in play here, but MySQL is running and we did see a Super Sensitive Login Page on localhost port 320. Since we know MySQL is running, we can try SQL injection on the login form.
 
+I make a login request in BurpSuite and save the request as a `.txt` file to use in `sqlmap`.
+
+![463548b7946289580fad411868466edc.png](../_resources/463548b7946289580fad411868466edc.png)
+
+No luck with `sqlmap`.
+![d8049d27c9152addab12ffe552ffe93a.png](../_resources/d8049d27c9152addab12ffe552ffe93a.png)
