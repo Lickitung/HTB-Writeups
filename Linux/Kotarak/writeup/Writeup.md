@@ -231,8 +231,7 @@ And lastly activate the shell with:
 
 Tuh-duh! We are now `tomcat`! I upgrade the unstable shell using the python trick, followed by setting `TERM` and tty rows/columns. The integers used to set the tty rows and columns was returned from the command `stty -a`. Lastly, I background the shell with `^Z` and run `stty raw -echo; fg <ENTER> <ENTER>` which does some magic, allowing me to use `^L`, tab complete, etc. We now have a pretty darn fancy reverse shell.
 
-![dc40ac9902beb48fb4c93dd35c3cf864.png](../_resources/dc40ac9902beb48fb4c93dd35c3cf864.png)
-![35ed34f307c08dd8a1e8dae455d10f58.png](../_resources/35ed34f307c08dd8a1e8dae455d10f58.png)
+![b15c13204cbc19a1439a83e543fd8e41.png](../_resources/b15c13204cbc19a1439a83e543fd8e41.png)
 
 Now it is time to transfer linPEAS over to the box for some more enumeration.
 
@@ -242,20 +241,35 @@ Now it is time to transfer linPEAS over to the box for some more enumeration.
 
 ![3f4af5d2676279e548727af1b54f1dd0.png](../_resources/3f4af5d2676279e548727af1b54f1dd0.png)
 
-backup file
+There are a number of things that stick out to me from the linpeas results (in no particular order).
 
+1.) There might be an old backup file of some sort.
 ![f8275853fc6b11fb64433563fe467e6b.png](../_resources/f8275853fc6b11fb64433563fe467e6b.png)
-![3f9a6112b92fb0bb05031cbd63152bd6.png](../_resources/3f9a6112b92fb0bb05031cbd63152bd6.png)
+
+2.) Possibly some SGID's and SUID's worth looking into.
 ![228933f8b286dfd31ec2138d44f3d4e2.png](../_resources/228933f8b286dfd31ec2138d44f3d4e2.png)
 ![02c8f210f84f0e7d40fff8284baf6839.png](../_resources/02c8f210f84f0e7d40fff8284baf6839.png)
-![d48da147566910c9a7e6ae345a006245.png](../_resources/d48da147566910c9a7e6ae345a006245.png)
+
+3.) A tmux session in `/tmp`
 ![3f2b720a73767cb6e13813f9c36e8946.png](../_resources/3f2b720a73767cb6e13813f9c36e8946.png)
+
+4.) There is an `atanas` user
 ![7f223ffeacd153f71f5d9a8c2ef6f171.png](../_resources/7f223ffeacd153f71f5d9a8c2ef6f171.png)
+
+5.) Some MySQL stuff, possibly including a config file?
 ![16e345e9d8ea00dd1d0675d498991609.png](../_resources/16e345e9d8ea00dd1d0675d498991609.png)
 ![b13855711f381d74ad4d1db754d95113.png](../_resources/b13855711f381d74ad4d1db754d95113.png)
+
+6.) It might be worth revisiting these ports open on localhost
 ![904b001b74099d0f00ca17eebd84e4bf.png](../_resources/904b001b74099d0f00ca17eebd84e4bf.png)
+
+7.) I am not 100% sure what mdadm is
 ![043dd83b33220d6872310c10131d983d.png](../_resources/043dd83b33220d6872310c10131d983d.png)
+
+8.) Lastly, our sudo version is outdated
 ![35e66d24f375e3a855b6bceb24b8f229.png](../_resources/35e66d24f375e3a855b6bceb24b8f229.png)
+![3f9a6112b92fb0bb05031cbd63152bd6.png](../_resources/3f9a6112b92fb0bb05031cbd63152bd6.png)
+![d48da147566910c9a7e6ae345a006245.png](../_resources/d48da147566910c9a7e6ae345a006245.png)
 
 Organize these notes later:
  - Cron possibly creating something in /tmp <- mdadm?
