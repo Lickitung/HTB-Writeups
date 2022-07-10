@@ -262,3 +262,20 @@ I make a login request in BurpSuite and save the request as a `.txt` file to use
 
 No luck with `sqlmap`.
 ![d8049d27c9152addab12ffe552ffe93a.png](../_resources/d8049d27c9152addab12ffe552ffe93a.png)
+
+After fumbling around with the previously noted linpeas output, I realized I missed a couple very peculiar files in `tomcat`'s home directory, within a directory named `pentest_data`.
+![3b11fb6599b762620a7eb96424910b26.png](../_resources/3b11fb6599b762620a7eb96424910b26.png)
+![0028a7137940c0ef565b925e2cb20e0b.png](../_resources/0028a7137940c0ef565b925e2cb20e0b.png)
+
+I ran `strings` and some other commands to try and do some forensics on the files but there wasn't much that really stood out. These seem like they are relevant files, so I Google "psexec ntds .dit .bin" and the very first result takes me here:
+https://www.ired.team/offensive-security/credential-access-and-credential-dumping/ntds.dit-enumeration
+
+It seems like it should be possible to dump some password hashes using `impacket`, so I transfer them over to my machine using `nc`.
+![9746beb1736eb33551377a9e50986885.png](../_resources/9746beb1736eb33551377a9e50986885.png)
+![1764beeccd65546ca7caa64d6636f9ca.png](../_resources/1764beeccd65546ca7caa64d6636f9ca.png)
+
+I run the following command:
+`impacket-secretsdump -system 20170721114637_default_192.168.110.133_psexec.ntdsgrab._089134.bin -security SECURITY -ntds 20170721114636_default_192.168.110.133_psexec.ntdsgrab._333512.dit local | tee dump-hashes.out`
+
+And like magic we have the hashes!
+![f4e62248c7f051bad9aeecce74964619.png](../_resources/f4e62248c7f051bad9aeecce74964619.png)
