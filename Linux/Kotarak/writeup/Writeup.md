@@ -279,3 +279,25 @@ I run the following command:
 
 And like magic we have the hashes!
 ![f4e62248c7f051bad9aeecce74964619.png](../_resources/f4e62248c7f051bad9aeecce74964619.png)
+
+Now, before we do any cracking with `john` or `hashcat`, it's always good practice to check these hashes against an online dictionary to save time (if in scope of the engagement), such as: https://crackstation.net/
+
+![2b8a98e2a5c6241fdd936021d09fe8fb.png](../_resources/2b8a98e2a5c6241fdd936021d09fe8fb.png)
+
+We are in luck with instant results back! We now have the following credentials:
+`Administrator:	f16tomcat!`
+`atanas:Password123!`
+
+I'll check for password reuse and see if we can ssh as user `atanas`.
+
+Interestingly enough, we aren't able to ssh using these credentials but we can `su`. So, I run `su atanas`, try `Password123!` which does not work, but then try `f16tomcat!` and switch.
+![7483da0b059f6bc817702d9b6b5fc48e.png](../_resources/7483da0b059f6bc817702d9b6b5fc48e.png)
+
+For persistence, I then create `~/.ssh/authorized_keys` for user `atanas` and include my public key so that I can ssh as myself.
+
+TODO: test persistence ssh?
+
+![98993806e9c921832c3fbf4487afe9be.png](../_resources/98993806e9c921832c3fbf4487afe9be.png)
+![570f1a08a2d975ad63de7a39b57aebcc.png](../_resources/570f1a08a2d975ad63de7a39b57aebcc.png)
+![6f62fda6bc6aefaf3dac98d1c661a20b.png](../_resources/6f62fda6bc6aefaf3dac98d1c661a20b.png)
+![b4ccd612e2665ebd9ea408eeee10d848.png](../_resources/b4ccd612e2665ebd9ea408eeee10d848.png)
