@@ -239,7 +239,7 @@ Now it is time to transfer linPEAS over to the box for some more enumeration.
 
 ![3f4af5d2676279e548727af1b54f1dd0.png](../_resources/3f4af5d2676279e548727af1b54f1dd0.png)
 
-There are a number of things that stick out to me from the linpeas results (in no particular order).
+There are a few things that stick out to me from the linpeas results (in no particular order).
 
 1.) There is an `atanas` user
 ![7f223ffeacd153f71f5d9a8c2ef6f171.png](../_resources/7f223ffeacd153f71f5d9a8c2ef6f171.png)
@@ -250,9 +250,6 @@ There are a number of things that stick out to me from the linpeas results (in n
 
 3.) It might be worth revisiting these ports open on localhost
 ![904b001b74099d0f00ca17eebd84e4bf.png](../_resources/904b001b74099d0f00ca17eebd84e4bf.png)
-
-4.) Lastly, our sudo version is outdated
-![35e66d24f375e3a855b6bceb24b8f229.png](../_resources/35e66d24f375e3a855b6bceb24b8f229.png)
 
 Unfortunately there doesn't seem to be any sudo exploits in play here, but MySQL is running and we did see a Super Sensitive Login Page on localhost port 320. Since we know MySQL is running, we can try SQL injection on the login form.
 
@@ -293,11 +290,31 @@ I'll check for password reuse and see if we can ssh as user `atanas`.
 Interestingly enough, we aren't able to ssh using these credentials but we can `su`. So, I run `su atanas`, try `Password123!` which does not work, but then try `f16tomcat!` and switch.
 ![7483da0b059f6bc817702d9b6b5fc48e.png](../_resources/7483da0b059f6bc817702d9b6b5fc48e.png)
 
-For persistence, I then create `~/.ssh/authorized_keys` for user `atanas` and include my public key so that I can ssh as myself.
+Now that we are a new user, I will go ahead and run linpeas again.
 
-TODO: test persistence ssh?
+It looks like we are in the disk group. Linpeas was nice to color this as a high-chance privilege escalation vector. 
+![6c2397fb56dbaa95ee65fa6c1197e147.png](../_resources/6c2397fb56dbaa95ee65fa6c1197e147.png)
+![ef3cf336d36cf71b89d85a54b2024709.png](../_resources/ef3cf336d36cf71b89d85a54b2024709.png)
+
+After a quick Google search, I found this link which explains privilege escalation via the disk group. This kind of works but we have been bamboozled as the root flag tells us we're getting close but not quite!
+![174defc72c31a860287df5a90a31824b.png](../_resources/174defc72c31a860287df5a90a31824b.png)
+
+Moving on to some manual enumeration, we find that the `root` directory is readable by everyone. So we take a peek and find that `atanas` is the owner of `flag.txt` and `app.log`. `cat`'ing `flag.txt` returns the same message as before.
+
+![1e637cef62cacb145f5fc6aa617a2afc.png](../_resources/1e637cef62cacb145f5fc6aa617a2afc.png)
+
+`app.log` shows a few GET requests, including the `wget` version that was used.
+
+![682c5f57550579adeb85871cf37788fc.png](../_resources/682c5f57550579adeb85871cf37788fc.png)
+
+We check this version using `searchsploit` and find that this version appears to be vulnerable to possibly a couple different exploits.
+
+![4a30a9130db4bb3b5ecd38c036c104f4.png](../_resources/4a30a9130db4bb3b5ecd38c036c104f4.png)
+
 
 ![98993806e9c921832c3fbf4487afe9be.png](../_resources/98993806e9c921832c3fbf4487afe9be.png)
 ![570f1a08a2d975ad63de7a39b57aebcc.png](../_resources/570f1a08a2d975ad63de7a39b57aebcc.png)
 ![6f62fda6bc6aefaf3dac98d1c661a20b.png](../_resources/6f62fda6bc6aefaf3dac98d1c661a20b.png)
 ![b4ccd612e2665ebd9ea408eeee10d848.png](../_resources/b4ccd612e2665ebd9ea408eeee10d848.png)
+
+![969bc1104afed582e033e28cc7f110e8.png](../_resources/969bc1104afed582e033e28cc7f110e8.png)
