@@ -307,9 +307,40 @@ Moving on to some manual enumeration, we find that the `root` directory is reada
 
 ![682c5f57550579adeb85871cf37788fc.png](../_resources/682c5f57550579adeb85871cf37788fc.png)
 
-We check this version using `searchsploit` and find that this version appears to be vulnerable to possibly a couple different exploits.
+We check this version using `searchsploit` and find that version 1.16 appears to be vulnerable to possibly a couple different exploits.
 
 ![4a30a9130db4bb3b5ecd38c036c104f4.png](../_resources/4a30a9130db4bb3b5ecd38c036c104f4.png)
+
+After reading a bit about this vulnerability (source: https://firmianay.github.io/wget_2016-4971/) we know that we need an ftp server and so does the victim in order for this to work. From linpeas and manual enumeration, we know that there is not an ftp service running on the box. Before losing hope, I do a search for any file that has "ftp" in the name:
+
+`find / -type f -iname "*ftp*" 2>/dev/null`
+
+There are a few results back that seem very out of place:
+![f26af70eb80d2012111a91f9b3266871.png](../_resources/f26af70eb80d2012111a91f9b3266871.png)
+
+We see that these files are owned by `root` and a python script that is executable by anyone! How nice :)
+
+![5911cdbfa2d713a26ebee291961e154a.png](../_resources/5911cdbfa2d713a26ebee291961e154a.png)
+![9ef2bd31e00f9a6d8a487f6cc7442e79.png](../_resources/9ef2bd31e00f9a6d8a487f6cc7442e79.png)
+
+Looking at these files, we see there is a main script that depends on some plugins and other files, also owned by `root`.
+![d3d4bfbf17f4096e8047f3dcf1ae3efb.png](../_resources/d3d4bfbf17f4096e8047f3dcf1ae3efb.png)
+
+We also find an official github repo:
+https://github.com/sosreport/sos
+
+Executing this doesn't do anything since we don't have plugins enabled.
+![f4c33cfef1de41112b6fecb6899f086b.png](../_resources/f4c33cfef1de41112b6fecb6899f086b.png)
+
+So, how can we start a ftp service
+
+
+
+
+
+![e4fbecb4a5670e1144efaaafb381ca19.png](../_resources/e4fbecb4a5670e1144efaaafb381ca19.png)
+
+![32281768aa8ad42c2b437fa407489d8c.png](../_resources/32281768aa8ad42c2b437fa407489d8c.png)
 
 
 ![98993806e9c921832c3fbf4487afe9be.png](../_resources/98993806e9c921832c3fbf4487afe9be.png)
