@@ -332,7 +332,7 @@ https://github.com/sosreport/sos
 Executing this doesn't do anything since we don't have plugins enabled.
 ![f4c33cfef1de41112b6fecb6899f086b.png](../_resources/f4c33cfef1de41112b6fecb6899f086b.png)
 
-So, how can we start a ftp service
+My thinking was that we needed to enable an ftp plugin for `sosreport` to make the exploit work but after a long rabbit hole of trying to get that to work, I eventually hit a wall...
 
 
 
