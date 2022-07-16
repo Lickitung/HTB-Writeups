@@ -334,18 +334,25 @@ Executing this doesn't do anything since we don't have plugins enabled.
 
 My thinking was that we needed to enable an ftp plugin for `sosreport` to make the exploit work but after a long rabbit hole of trying to get that to work, I eventually hit a wall...
 
+After a long while, I resorted to IppSec's walkthrough on this box and found that he used `authbind` with the python module `pyftpdlib`. The reason why `authbind` is used, is because without it, we would not have sufficient permissions.
 
+*Without `authbind`:*
+![c3edf2f74513448ad10020b2a04b9c5b.png](../_resources/c3edf2f74513448ad10020b2a04b9c5b.png)
 
+*With `authbind`:*
+![df6508462676bb5c43717802408fede6.png](../_resources/df6508462676bb5c43717802408fede6.png)
 
+I then background the python ftp server and finish staging the exploit. The `.wgetrc` file is created per searchsploit `linux/remote/40064.txt`
 
-![e4fbecb4a5670e1144efaaafb381ca19.png](../_resources/e4fbecb4a5670e1144efaaafb381ca19.png)
+![84af7d1e5f2353db391f9a892d8babd3.png](../_resources/84af7d1e5f2353db391f9a892d8babd3.png)
 
-![32281768aa8ad42c2b437fa407489d8c.png](../_resources/32281768aa8ad42c2b437fa407489d8c.png)
+Then we modify the exploit on the victim.
+![2e5f8bc0c658c32757e90fc0d3f726ff.png](../_resources/2e5f8bc0c658c32757e90fc0d3f726ff.png)
 
+Lastly, this exploit should also be ran with `authbind` since privileged ports 80 and 21 are used. And wait...
+![10613e38c899f91eab142d060e2e2c85.png](../_resources/10613e38c899f91eab142d060e2e2c85.png)
 
-![98993806e9c921832c3fbf4487afe9be.png](../_resources/98993806e9c921832c3fbf4487afe9be.png)
-![570f1a08a2d975ad63de7a39b57aebcc.png](../_resources/570f1a08a2d975ad63de7a39b57aebcc.png)
-![6f62fda6bc6aefaf3dac98d1c661a20b.png](../_resources/6f62fda6bc6aefaf3dac98d1c661a20b.png)
-![b4ccd612e2665ebd9ea408eeee10d848.png](../_resources/b4ccd612e2665ebd9ea408eeee10d848.png)
+After a few minutes, we finally get our root shell!
+![0c52240d777914eb4060d19d2a0914e8.png](../_resources/0c52240d777914eb4060d19d2a0914e8.png)
 
-![969bc1104afed582e033e28cc7f110e8.png](../_resources/969bc1104afed582e033e28cc7f110e8.png)
+This was by far the most challenging and time consuming box I have done from HTB. What a learning experience! After watching IppSec's video, I also learned that it IS possible to get root by using the disk exploit I started looking at earlier. I'll leave that out of this writeup though. :)
