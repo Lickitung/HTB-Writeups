@@ -116,3 +116,7 @@ nothing really from `wpscan`
  ```
  
  ![1cedec794b933e30a1411629c34dd233.png](../_resources/1cedec794b933e30a1411629c34dd233.png)
+ 
+ TODO: more enumeration
+ 
+ 
